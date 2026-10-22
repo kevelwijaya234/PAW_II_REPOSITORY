@@ -15,8 +15,10 @@
     "fmt": "oxfmt",
     "fmt:check": "oxfmt --check",
     "lint": "oxlint",
-    "lint:fix": "oxlint --fix"
+    "lint:fix": "oxlint --fix",
+    "seed": "node src/seeders/index.seeder.js"
   },
+  
   "dependencies": {
     "bcryptjs": "^3.0.3",
     "body-parser": "^2.3.0",

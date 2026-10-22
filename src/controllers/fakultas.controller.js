@@ -4,21 +4,43 @@ import { apiResponse, apiResponseValidation } from "../utils/response.js";
 
 class FakultasController {
   // GET /api/fakultas
+ // GET /api/fakultas
   static async index(req, res) {
-    try {
-      const listFakultas = await FakultasModel.find();
-      return apiResponse({
-        res,
-        status: 200,
-        message: "List Fakultas",
-        data: listFakultas,
-      });
-    } catch (error) {
-      return apiResponse({
-        res,
-        status: 500,
-        message: error.message,
-        data: null,
+  try {
+    const { search, sort, sortBy } = req.query;
+    const filter = {};
+    const sortOption = {
+      [sortBy]: sort === "desc" ? -1 : 1
+    };
+
+    if (search) {
+      filter.$or = [
+        { nama_fakultas: { $regex: search, $options: "i" } },
+        { kode: { $regex: search, $options: "i" } }
+      ];
+    }
+
+    const listFakultas = await FakultasModel
+    .find(filter)
+    .select({
+      _id: 1,
+      kode: 1,
+      nama_fakultas: 1,
+    })
+    .sort(sortOption);
+    
+    return apiResponse({
+      res,
+      status: 200,
+      message: "List Fakultas",
+      data: listFakultas,
+    });
+  } catch (error) {
+    return apiResponse({
+      res,
+      status: 500,
+      message: error.message,
+      data: null,
       });
     }
   }

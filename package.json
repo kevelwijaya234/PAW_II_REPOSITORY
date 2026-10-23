@@ -10,15 +10,14 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon src/server.js",
-    "dev:debug": "nodemon --inspect src/server.js",
+    "dev": "node --watch src/server.js",
+    "dev:debug": "node --watch --inspect src/server.js",
     "fmt": "oxfmt",
     "fmt:check": "oxfmt --check",
     "lint": "oxlint",
     "lint:fix": "oxlint --fix",
     "seed": "node src/seeders/index.seeder.js"
   },
-  
   "dependencies": {
     "bcryptjs": "^3.0.3",
     "body-parser": "^2.3.0",
@@ -35,7 +34,6 @@
   },
   "devDependencies": {
     "@types/jsonwebtoken": "^9.0.10",
-    "nodemon": "^3.1.14",
     "oxfmt": "^0.66.0",
     "oxlint": "^1.81.0"
   }

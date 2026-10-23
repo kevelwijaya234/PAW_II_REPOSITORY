@@ -3,15 +3,26 @@ import { storeFakultasSchema, updateFakultasSchema } from "../schemas/fakultas.s
 import { apiResponse, apiResponseValidation } from "../utils/response.js";
 
 class FakultasController {
-  // GET /api/fakultas
- // GET /api/fakultas
   static async index(req, res) {
   try {
-    const { search, sort, sortBy } = req.query;
-    const filter = {};
-    const sortOption = {
-      [sortBy]: sort === "desc" ? -1 : 1
-    };
+  const filter = {};
+  const {
+  search, 
+  sortBy = "createdAt", 
+  sort = "desc", 
+  page = 1, 
+  limit = 10, 
+  } = req.query;
+  const currentPage = Math.max(1, parseInt(page, 10) || 1); 
+  const perPage = Math.max(1, parseInt(limit, 10) || 10); 
+  const skip = (currentPage - 1) * perPage; 
+
+  const allowSortFields = ["kode", "nama_fakultas", "createdAt", "updatedAt"];
+  const sortByField = allowSortFields.includes(sortBy) ? sortBy : "createdAt";
+
+  const sortOption = {
+    [sortByField]: sort === "desc" ? -1 : 1
+  };
 
     if (search) {
       filter.$or = [
@@ -20,20 +31,36 @@ class FakultasController {
       ];
     }
 
-    const listFakultas = await FakultasModel
-    .find(filter)
+    const [listFakultas, totalData] = await Promise.all([
+    FakultasModel.find(filter)
     .select({
       _id: 1,
       kode: 1,
       nama_fakultas: 1,
     })
-    .sort(sortOption);
-    
+    .sort(sortOption)
+    .skip(skip)
+    .limit(perPage),
+
+    FakultasModel.countDocuments(filter)
+  ]);
+
+  const totalPages = Math.ceil(totalData / perPage);
+
     return apiResponse({
       res,
       status: 200,
-      message: "List Fakultas",
-      data: listFakultas,
+      data: {
+        item: listFakultas,
+        pagination: {
+          totalData,
+          totalPages,
+          currentPage,
+          perPage,
+          hasNextPage: currentPage < totalPages,
+          hasPrevPage: currentPage > 1
+        }
+      }
     });
   } catch (error) {
     return apiResponse({

@@ -7,6 +7,7 @@ import UserController from '../controllers/user.controller.js'
 import WelcomeController from '../controllers/welcome.controller.js'
 import LogMiddleware from '../middleware/log.middleware.js'
 import ProdiController from '../controllers/prodi.controller.js'
+import {autenticateJwt} from '../middleware/auth.middleware.js'
 const router = express.Router()
 
 router.get('/welcome', WelcomeController.welcome)
@@ -14,6 +15,7 @@ router.post('/users', UserController.store)
 router.post('/upload', upload.single('file'), UploadController.store)
 
 router.use(LogMiddleware)
+router.use(autenticateJwt) // Middleware untuk memeriksa autentikasi
 
 router.get('/fakultas',FakultasController.index)
 router.get("/fakultas/:id",FakultasController.show)

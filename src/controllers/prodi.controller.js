@@ -31,10 +31,9 @@ class ProdiController {
 
       // Filter pencarian berdasarkan kode atau nama_prodi
       if (search) {
-        filter.$or = [
-          { nama_prodi: { $regex: search, $options: "i" } },
-          { kode: { $regex: search, $options: "i" } },
-        ];
+        filter.nama_prodi = { 
+          $regex: search, 
+          $options: "i" };
       }
 
       const [listProdi, totalData] = await Promise.all([
@@ -47,10 +46,10 @@ class ProdiController {
             createdAt: 1,
             updatedAt: 1,
           })
-          .populate("fakultas", "kode nama_fakultas")
           .sort(sortOption)
           .skip(skip)
-          .limit(perPage),
+          .limit(perPage)
+          .populate("fakultas"),
 
         ProdiModel.countDocuments(filter),
       ]);

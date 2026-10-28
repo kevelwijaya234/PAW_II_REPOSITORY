@@ -14,7 +14,7 @@ const schema = new mongoose.Schema(
     },
     fakultas: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "fakultas", // Mereferensikan model 'fakultas'
+      ref: "Fakultas", // Mereferensikan model 'Fakultas'
       required: true,
     },
   },

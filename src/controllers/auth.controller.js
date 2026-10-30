@@ -1,6 +1,7 @@
-import UserModel from '../models/user.model.js'
+import UserModel from '../model/User.model.js'
 import { loginSchema, registerSchema } from '../schemas/auth.schema.js'
 import { PasswordHelper } from '../utils/bcrypt.js'
+import { JwtHelper } from '../utils/jwt.js'
 import { apiResponse, apiResponseValidation } from '../utils/response.js'
 
 class AuthController {
@@ -24,7 +25,13 @@ class AuthController {
         res,
         status: 201,
         message: 'Register berhasil',
-        data: null
+        data: {
+          user: {
+            _id: newUser._id,
+            username: newUser.username,
+            email: newUser.email,
+          },
+        },
       })
     } catch (error) {
       if (error.code === 11000) {
@@ -69,8 +76,7 @@ class AuthController {
         })
       }
 
-      // Generate access token (assuming you have a JwtHelper)
-      // const accessToken = JwtHelper.sign({ sub: user._id.toString() })
+      const accessToken = JwtHelper.sign({ sub: user._id.toString() })
 
       return apiResponse({
         res,
@@ -82,8 +88,8 @@ class AuthController {
             username: user.username,
             email: user.email,
           },
-          // access_token: accessToken,
-          // token_type: 'Bearer',
+          access_token: accessToken,
+          token_type: 'Bearer',
         },
       })
     } catch (error) {

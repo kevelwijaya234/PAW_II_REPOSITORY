@@ -1,28 +1,43 @@
 import { verifyToken } from '../utils/jwt.js'
 import { apiResponse } from '../utils/response.js'
 
-export const authenticateJwt = async (req, res, next) => {
+export const authenticateJwt = (req, res, next) => {
   const authHeader = req.headers.authorization
+  const match = typeof authHeader === 'string'
+    ? /^Bearer\s+(\S+)$/i.exec(authHeader)
+    : null
 
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+  if (!match) {
     return apiResponse({
       res,
       status: 401,
-      message: 'Unauthorized: No token provided',
+      message: 'Token Bearer wajib disertakan',
     })
   }
 
-  const token = authHeader.split(' ')[1]
+  let decoded
 
   try {
-    const decoded = await verifyToken(token)
-    req.user = decoded
-    next()
+    decoded = verifyToken(match[1])
   } catch (error) {
     return apiResponse({
       res,
       status: 401,
-      message: `Unauthorized: ${error.message}`,
+      message: error.name === 'TokenExpiredError'
+        ? 'Token sudah kedaluwarsa, silakan login kembali'
+        : 'Token tidak valid',
     })
   }
+
+  if (
+    typeof decoded !== 'object' ||
+    decoded === null ||
+    typeof decoded.sub !== 'string' ||
+    !/^[a-f\d]{24}$/i.test(decoded.sub)
+  ) {
+    return apiResponse({ res, status: 401, message: 'Token tidak valid' })
+  }
+
+  req.user = { id: decoded.sub }
+  return next()
 }
